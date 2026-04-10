@@ -2,12 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal, Protocol, Sequence
+from typing import Protocol, Sequence
 
 from fragmento_engine.domain.compositor import build_timeslice
 from fragmento_engine.domain.models import CompositeResult, RGBImage, TimesliceSpec
-
-ResizeMode = Literal["crop", "resize"]
+from fragmento_engine.shared.types import ResizeMode
 
 
 class ImageSequenceLoader(Protocol):
