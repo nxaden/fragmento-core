@@ -62,7 +62,7 @@ dev = [
 Homepage = "https://github.com/nxaden/pytimeslice"
 Repository = "https://github.com/nxaden/pytimeslice"
 Issues = "https://github.com/nxaden/pytimeslice/issues"
-Documentation = "https://github.com/nxaden/pytimeslice/tree/main/docs"
+Documentation = "https://nxaden.github.io/pytimeslice/"
 
 [project.scripts]
 pytimeslice = "pytimeslice.interface.cli:main"

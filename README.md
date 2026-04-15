@@ -40,8 +40,8 @@ Current focus includes:
 - **Infrastructure**: image loading and writing adapters
 - **Interface**: CLI and future user-facing entry points
 
-See [the API reference](https://github.com/nxaden/pytimeslice/blob/main/docs/API_REFERENCE.md)
-for the Python API surface and module-level reference.
+See [the hosted documentation](https://nxaden.github.io/pytimeslice/) for the
+user guides and generated API reference.
 
 ## Project Structure
 
@@ -190,7 +190,7 @@ pytimeslice ./frames \
 ```
 
 More CLI recipes, including overlay practice commands, live in
-[the usage examples guide](https://github.com/nxaden/pytimeslice/blob/main/docs/USAGE_EXAMPLES.md).
+[the hosted docs](https://nxaden.github.io/pytimeslice/USAGE_EXAMPLES/).
 
 ## Packaging
 
@@ -211,6 +211,9 @@ Release notes live in
 
 The human-facing docs site is built with MkDocs and generated API reference
 pages from the package docstrings.
+
+Hosted docs are intended to live at
+[nxaden.github.io/pytimeslice](https://nxaden.github.io/pytimeslice/).
 
 ```sh
 make docs-build
