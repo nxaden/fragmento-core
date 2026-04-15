@@ -6,7 +6,7 @@ Fragmento Engine exposes a small public API at the package root for the common
 library use case:
 
 ```python
-from fragmento_engine import TimesliceSpec, render_folder, render_images
+from fragmento_engine import SliceEffects, TimesliceSpec, render_folder, render_images
 ```
 
 For advanced usage, lower-level modules are also available under
@@ -22,6 +22,7 @@ TimesliceSpec(
     orientation: Literal["vertical", "horizontal"] = "vertical",
     num_slices: int | None = None,
     reverse_time: bool = False,
+    effects: SliceEffects | None = None,
 )
 ```
 
@@ -34,6 +35,8 @@ Fields:
 - `num_slices`: Number of output bands. If omitted, one slice is generated per
   input image.
 - `reverse_time`: Reverses the frame order used across the output span.
+- `effects`: Optional `SliceEffects` configuration applied at slice
+  boundaries.
 
 Raises:
 
@@ -70,11 +73,15 @@ Raises:
 Example:
 
 ```python
-from fragmento_engine import TimesliceSpec, render_images
+from fragmento_engine import SliceEffects, TimesliceSpec, render_images
 
 result = render_images(
     images=frames,
-    spec=TimesliceSpec(orientation="vertical", num_slices=20),
+    spec=TimesliceSpec(
+        orientation="vertical",
+        num_slices=20,
+        effects=SliceEffects(border_width=2, feather_width=6),
+    ),
 )
 
 print(result.image.shape)
@@ -120,7 +127,7 @@ Example:
 ```python
 from pathlib import Path
 
-from fragmento_engine import TimesliceSpec, render_folder
+from fragmento_engine import SliceEffects, TimesliceSpec, render_folder
 
 response = render_folder(
     input_folder=Path("./frames"),
@@ -129,6 +136,12 @@ response = render_folder(
         orientation="horizontal",
         num_slices=24,
         reverse_time=False,
+        effects=SliceEffects(
+            border_width=2,
+            shadow_width=8,
+            shadow_opacity=0.35,
+            feather_width=6,
+        ),
     ),
     resize_mode="crop",
 )
@@ -163,6 +176,14 @@ RGBImage = numpy.typing.NDArray[numpy.uint8]
 
 Represents an image array with shape `(height, width, 3)`.
 
+#### `RGBColor`
+
+```python
+RGBColor = tuple[int, int, int]
+```
+
+Represents a single RGB color such as `(255, 255, 255)`.
+
 #### `FrameRef`
 
 ```python
@@ -195,6 +216,27 @@ Describes one band in the output composite:
 - `frame_index`: Source frame selected for the band.
 - `start`: Inclusive band start pixel on the active axis.
 - `end`: Exclusive band end pixel on the active axis.
+
+#### `SliceEffects`
+
+```python
+SliceEffects(
+    border_width: int = 0,
+    border_color: RGBColor = (255, 255, 255),
+    shadow_width: int = 0,
+    shadow_opacity: float = 0.35,
+    feather_width: int = 0,
+)
+```
+
+Optional boundary treatments applied after the base timeslice is assembled.
+
+- `border_width`: Thickness of the divider line centered on each slice
+  boundary.
+- `border_color`: Divider color used when `border_width > 0`.
+- `shadow_width`: Inner shadow width in pixels on each side of a boundary.
+- `shadow_opacity`: Shadow strength from `0.0` to `1.0`.
+- `feather_width`: Blend width in pixels applied inside each neighboring slice.
 
 #### `TimeslicePlan`
 
@@ -342,6 +384,7 @@ Raises:
 apply_timeslice_plan(
     images: Sequence[RGBImage],
     plan: TimeslicePlan,
+    effects: SliceEffects | None = None,
 ) -> CompositeResult
 ```
 
@@ -444,13 +487,18 @@ Supported arguments:
 - `--slices`
 - `--resize-mode {crop,resize}`
 - `--reverse-time`
+- `--border`
+- `--border-color`
+- `--shadow`
+- `--shadow-opacity`
+- `--feather`
 
 ## Stability Guide
 
 Prefer the package root for normal library usage:
 
 ```python
-from fragmento_engine import TimesliceSpec, render_folder, render_images
+from fragmento_engine import SliceEffects, TimesliceSpec, render_folder, render_images
 ```
 
 Use lower-level modules when you need tighter control over the render pipeline:

@@ -6,6 +6,7 @@ import numpy as np
 import numpy.typing as npt
 
 Orientation = Literal["vertical", "horizontal"]
+RGBColor = tuple[int, int, int]
 RGBImage = npt.NDArray[np.uint8]
 
 
@@ -28,12 +29,24 @@ class SequenceInfo:
 
 
 @dataclass(frozen=True)
+class SliceEffects:
+    """SliceEffects describes optional treatments applied at slice boundaries."""
+
+    border_width: int = 0
+    border_color: RGBColor = (255, 255, 255)
+    shadow_width: int = 0
+    shadow_opacity: float = 0.35
+    feather_width: int = 0
+
+
+@dataclass(frozen=True)
 class TimesliceSpec:
     """TimesliceSpec is the user's render intent."""
 
     orientation: Orientation = "vertical"
     num_slices: int | None = None
     reverse_time: bool = False
+    effects: SliceEffects | None = None
 
 
 @dataclass(frozen=True)

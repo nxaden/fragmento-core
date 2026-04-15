@@ -4,7 +4,58 @@ import argparse
 from pathlib import Path
 
 from fragmento_engine import render_folder
-from fragmento_engine import TimesliceSpec
+from fragmento_engine import SliceEffects, TimesliceSpec
+
+
+def _parse_color(value: str) -> tuple[int, int, int]:
+    raw = value.strip()
+
+    if "," in raw:
+        parts = [part.strip() for part in raw.split(",")]
+        if len(parts) != 3:
+            raise argparse.ArgumentTypeError(
+                "Expected a color in R,G,B format with exactly 3 channels."
+            )
+
+        try:
+            channels = tuple(int(part) for part in parts)
+        except ValueError as exc:
+            raise argparse.ArgumentTypeError(
+                "RGB channels must be integers between 0 and 255."
+            ) from exc
+    else:
+        hex_value = raw.removeprefix("#")
+        if len(hex_value) != 6:
+            raise argparse.ArgumentTypeError(
+                "Expected a color in #RRGGBB or R,G,B format."
+            )
+
+        try:
+            channels = tuple(
+                int(hex_value[index : index + 2], 16) for index in (0, 2, 4)
+            )
+        except ValueError as exc:
+            raise argparse.ArgumentTypeError(
+                "Hex colors must use valid hexadecimal digits."
+            ) from exc
+
+    if any(channel < 0 or channel > 255 for channel in channels):
+        raise argparse.ArgumentTypeError("Color channels must be between 0 and 255.")
+
+    return channels
+
+
+def _build_effects(args: argparse.Namespace) -> SliceEffects | None:
+    if args.border <= 0 and args.shadow <= 0 and args.feather <= 0:
+        return None
+
+    return SliceEffects(
+        border_width=args.border,
+        border_color=args.border_color,
+        shadow_width=args.shadow,
+        shadow_opacity=args.shadow_opacity,
+        feather_width=args.feather,
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -25,6 +76,37 @@ def build_parser() -> argparse.ArgumentParser:
         default="crop",
     )
     parser.add_argument("--reverse-time", action="store_true")
+    parser.add_argument(
+        "--border",
+        type=int,
+        default=0,
+        help="Divider thickness in pixels drawn at slice boundaries.",
+    )
+    parser.add_argument(
+        "--border-color",
+        type=_parse_color,
+        default=(255, 255, 255),
+        metavar="COLOR",
+        help="Border color as #RRGGBB or R,G,B.",
+    )
+    parser.add_argument(
+        "--shadow",
+        type=int,
+        default=0,
+        help="Inner shadow width in pixels on each side of a slice boundary.",
+    )
+    parser.add_argument(
+        "--shadow-opacity",
+        type=float,
+        default=0.35,
+        help="Shadow strength from 0.0 to 1.0.",
+    )
+    parser.add_argument(
+        "--feather",
+        type=int,
+        default=0,
+        help="Blend width in pixels applied inside each neighboring slice.",
+    )
     return parser
 
 
@@ -36,6 +118,7 @@ def main() -> None:
         orientation=args.orientation,
         num_slices=args.slices,
         reverse_time=args.reverse_time,
+        effects=_build_effects(args),
     )
 
     response = render_folder(

@@ -25,6 +25,7 @@ Current focus includes:
 - vertical or horizontal time-slice rendering
 - configurable slice count
 - optional reverse-time rendering
+- optional slice boundary effects such as borders, shadows, and feathering
 - application-layer render workflows
 - infrastructure adapters for PIL-based loading and saving
 
@@ -87,12 +88,19 @@ Example:
 ```python
 from pathlib import Path
 
-from fragmento_engine import render_folder, TimesliceSpec
+from fragmento_engine import SliceEffects, TimesliceSpec, render_folder
 
 spec = TimesliceSpec(
     orientation="vertical",
     num_slices=20,
     reverse_time=False,
+    effects=SliceEffects(
+        border_width=2,
+        border_color=(255, 255, 255),
+        shadow_width=8,
+        shadow_opacity=0.35,
+        feather_width=6,
+    ),
 )
 
 response = render_folder(
@@ -111,6 +119,19 @@ A CLI interface can be provided on top of the engine so a folder of source frame
 
 ```sh
 fragmento ./frames ./out.jpg --orientation vertical --slices 20
+```
+
+Example with slice effects:
+
+```sh
+fragmento ./frames ./out.jpg \
+  --orientation vertical \
+  --slices 20 \
+  --border 2 \
+  --border-color '#ffffff' \
+  --shadow 8 \
+  --shadow-opacity 0.35 \
+  --feather 6
 ```
 
 ## Roadmap
