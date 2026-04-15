@@ -18,7 +18,11 @@ def _parse_color(value: str) -> tuple[int, int, int]:
             )
 
         try:
-            channels = tuple(int(part) for part in parts)
+            channels = (
+                int(parts[0]),
+                int(parts[1]),
+                int(parts[2]),
+            )
         except ValueError as exc:
             raise argparse.ArgumentTypeError(
                 "RGB channels must be integers between 0 and 255."
@@ -31,8 +35,10 @@ def _parse_color(value: str) -> tuple[int, int, int]:
             )
 
         try:
-            channels = tuple(
-                int(hex_value[index : index + 2], 16) for index in (0, 2, 4)
+            channels = (
+                int(hex_value[0:2], 16),
+                int(hex_value[2:4], 16),
+                int(hex_value[4:6], 16),
             )
         except ValueError as exc:
             raise argparse.ArgumentTypeError(
@@ -198,7 +204,7 @@ def main() -> None:
     )
 
     if args.progression_gif:
-        response = render_progression_gif(
+        gif_response = render_progression_gif(
             input_folder=args.input_folder,
             output_file=args.output_file,
             spec=spec,
@@ -206,20 +212,19 @@ def main() -> None:
             frame_duration_ms=args.gif_frame_duration_ms,
             smooth_loop=args.gif_smooth_loop,
         )
+        print(f"Rendered using {len(gif_response.input_paths)} images.")
+        counts = ", ".join(str(count) for count in gif_response.emitted_slice_counts)
+        print(f"Slice counts: {counts}")
+        print(f"Saved: {gif_response.output_file}")
     else:
-        response = render_folder_to_file(
+        image_response = render_folder_to_file(
             input_folder=args.input_folder,
             output_file=args.output_file,
             spec=spec,
             resize_mode=args.resize_mode,
         )
-
-    print(f"Rendered using {len(response.input_paths)} images.")
-    if response.slice_counts is not None:
-        counts = ", ".join(str(count) for count in response.slice_counts)
-        print(f"Slice counts: {counts}")
-    if response.output_file is not None:
-        print(f"Saved: {response.output_file}")
+        print(f"Rendered using {len(image_response.input_paths)} images.")
+        print(f"Saved: {image_response.output_file}")
 
 
 if __name__ == "__main__":

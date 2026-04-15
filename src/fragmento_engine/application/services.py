@@ -118,14 +118,34 @@ class RenderResponse:
         result: The final composite result returned by the domain layer.
         input_paths: The ordered source image paths used during rendering.
         output_file: Saved output location when the workflow persisted a file.
-        slice_counts: Rendered slice counts when an animated progression was
-            generated.
     """
 
     result: CompositeResult
     input_paths: list[Path]
     output_file: Path | None = None
-    slice_counts: list[int] | None = None
+
+
+@dataclass(frozen=True)
+class ProgressionGifRenderResponse:
+    """Output payload for a progression GIF render workflow.
+
+    Attributes:
+        peak_result: The highest-slice-count render generated for the GIF.
+        last_emitted_result: The final frame emitted into the GIF sequence.
+        input_paths: The ordered source image paths used during rendering.
+        output_file: Saved GIF location.
+        base_slice_counts: The forward slice counts rendered before any
+            smooth-loop expansion.
+        emitted_slice_counts: The actual slice-count order encoded into the
+            GIF, including any smooth-loop walk-back frames.
+    """
+
+    peak_result: CompositeResult
+    last_emitted_result: CompositeResult
+    input_paths: list[Path]
+    output_file: Path
+    base_slice_counts: list[int]
+    emitted_slice_counts: list[int]
 
 
 def _default_output_file(
@@ -313,7 +333,7 @@ class RenderTimesliceService:
         *,
         duration_ms: int = 250,
         smooth_loop: bool = False,
-    ) -> RenderResponse:
+    ) -> ProgressionGifRenderResponse:
         """Render a power-of-two slice progression and save it as an animated GIF."""
         if self._image_writer is None:
             raise ValueError("No image writer configured.")
@@ -325,7 +345,7 @@ class RenderTimesliceService:
             num_images=len(images),
             span=span,
         )
-        slice_counts = (
+        emitted_slice_counts = (
             _smooth_loop_slice_counts(base_slice_counts)
             if smooth_loop
             else base_slice_counts
@@ -342,7 +362,9 @@ class RenderTimesliceService:
             slice_count: result
             for slice_count, result in zip(base_slice_counts, peak_results)
         }
-        frames = [results_by_count[slice_count].image for slice_count in slice_counts]
+        frames = [
+            results_by_count[slice_count].image for slice_count in emitted_slice_counts
+        ]
         resolved_output = _resolve_output_file(
             request.input_folder,
             output_file,
@@ -355,9 +377,11 @@ class RenderTimesliceService:
             resolved_output,
             duration_ms=duration_ms,
         )
-        return RenderResponse(
-            result=peak_results[-1],
+        return ProgressionGifRenderResponse(
+            peak_result=peak_results[-1],
+            last_emitted_result=results_by_count[emitted_slice_counts[-1]],
             input_paths=paths,
             output_file=resolved_output,
-            slice_counts=slice_counts,
+            base_slice_counts=base_slice_counts,
+            emitted_slice_counts=emitted_slice_counts,
         )

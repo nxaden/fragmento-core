@@ -216,7 +216,7 @@ render_progression_gif(
     resize_mode: Literal["crop", "resize"] = "crop",
     frame_duration_ms: int = 250,
     smooth_loop: bool = False,
-) -> RenderResponse
+) -> ProgressionGifRenderResponse
 ```
 
 Load an image sequence from a folder, render a power-of-two slice progression,
@@ -235,8 +235,9 @@ Behavior:
 
 Returns:
 
-- `RenderResponse`: Final frame result, ordered input paths, saved GIF path,
-  and the rendered progression slice counts.
+- `ProgressionGifRenderResponse`: Explicit GIF metadata including the peak
+  render, the last emitted frame, and both the base and emitted slice-count
+  sequences.
 
 Example:
 
@@ -264,7 +265,10 @@ response = render_progression_gif(
 )
 
 print(response.output_file)
-print(response.slice_counts)
+print(response.base_slice_counts)
+print(response.emitted_slice_counts)
+print(response.peak_result.image.shape)
+print(response.last_emitted_result.image.shape)
 ```
 
 ## Data Types
@@ -430,11 +434,25 @@ RenderResponse(
     result: CompositeResult,
     input_paths: list[Path],
     output_file: Path | None = None,
-    slice_counts: list[int] | None = None,
 )
 ```
 
 Structured output for the folder-based render workflow.
+
+### `fragmento_engine.application.services.ProgressionGifRenderResponse`
+
+```python
+ProgressionGifRenderResponse(
+    peak_result: CompositeResult,
+    last_emitted_result: CompositeResult,
+    input_paths: list[Path],
+    output_file: Path,
+    base_slice_counts: list[int],
+    emitted_slice_counts: list[int],
+)
+```
+
+Structured output for the progression GIF workflow.
 
 ### `fragmento_engine.application.services.ImageSequenceLoader`
 
@@ -508,7 +526,7 @@ render_progression_gif_to_file(
     *,
     duration_ms: int = 250,
     smooth_loop: bool = False,
-) -> RenderResponse
+) -> ProgressionGifRenderResponse
 ```
 
 Builds a power-of-two slice progression and persists it as an animated GIF.

@@ -5,6 +5,7 @@ import numpy as np
 import fragmento_engine.app as app_module
 from fragmento_engine import render_images
 from fragmento_engine.application.services import (
+    ProgressionGifRenderResponse,
     RenderRequest,
     RenderResponse,
     RenderTimesliceService,
@@ -207,12 +208,14 @@ def test_render_progression_gif_uses_power_of_two_slice_counts(
         duration_ms=120,
     )
 
-    assert response.slice_counts == [1, 2, 4, 8]
-    assert response.output_file is not None
+    assert isinstance(response, ProgressionGifRenderResponse)
+    assert response.base_slice_counts == [1, 2, 4, 8]
+    assert response.emitted_slice_counts == [1, 2, 4, 8]
     assert response.output_file.parent == tmp_path / "out"
     assert response.output_file.suffix == ".gif"
     assert response.output_file.name.endswith("-progression.gif")
-    assert len(response.result.plan.bands) == 8
+    assert len(response.peak_result.plan.bands) == 8
+    assert len(response.last_emitted_result.plan.bands) == 8
 
     assert len(writer.saved_gifs) == 1
     frames, output_file, duration_ms = writer.saved_gifs[0]
@@ -243,8 +246,11 @@ def test_render_progression_gif_can_use_smooth_loop_slice_counts(
         smooth_loop=True,
     )
 
-    assert response.slice_counts == [1, 2, 4, 8, 4, 2]
-    assert len(response.result.plan.bands) == 8
+    assert isinstance(response, ProgressionGifRenderResponse)
+    assert response.base_slice_counts == [1, 2, 4, 8]
+    assert response.emitted_slice_counts == [1, 2, 4, 8, 4, 2]
+    assert len(response.peak_result.plan.bands) == 8
+    assert len(response.last_emitted_result.plan.bands) == 2
 
     assert len(writer.saved_gifs) == 1
     frames, _, duration_ms = writer.saved_gifs[0]

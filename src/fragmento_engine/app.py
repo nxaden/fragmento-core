@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from fragmento_engine.application.services import (
+    ProgressionGifRenderResponse,
     RenderRequest,
     RenderResponse,
     RenderTimesliceService,
@@ -87,7 +88,7 @@ def render_progression_gif(
     resize_mode: ResizeMode = "crop",
     frame_duration_ms: int = 250,
     smooth_loop: bool = False,
-) -> RenderResponse:
+) -> ProgressionGifRenderResponse:
     """Render a power-of-two slice progression GIF from a folder of images.
 
     The progression starts at 1 slice and doubles until the sequence exceeds
