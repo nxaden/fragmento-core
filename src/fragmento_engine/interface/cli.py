@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from fragmento_engine import render_folder, render_progression_gif
+from fragmento_engine import render_folder_to_file, render_progression_gif
 from fragmento_engine import SliceEffects, TimesliceSpec
 
 
@@ -207,7 +207,7 @@ def main() -> None:
             smooth_loop=args.gif_smooth_loop,
         )
     else:
-        response = render_folder(
+        response = render_folder_to_file(
             input_folder=args.input_folder,
             output_file=args.output_file,
             spec=spec,

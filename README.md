@@ -116,7 +116,20 @@ response = render_folder(
 )
 
 print(response.result.image.shape)
-print(response.output_file)
+```
+
+To render and save explicitly:
+
+```python
+from fragmento_engine import render_folder_to_file
+
+saved = render_folder_to_file(
+    input_folder=Path("./frames"),
+    spec=spec,
+    resize_mode="crop",
+)
+
+print(saved.output_file)
 ```
 
 ## CLI Usage

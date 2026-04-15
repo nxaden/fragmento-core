@@ -2,8 +2,11 @@ from pathlib import Path
 
 import numpy as np
 
+import fragmento_engine.app as app_module
+from fragmento_engine import render_images
 from fragmento_engine.application.services import (
     RenderRequest,
+    RenderResponse,
     RenderTimesliceService,
 )
 from fragmento_engine.domain.models import RGBImage, TimesliceSpec
@@ -48,6 +51,31 @@ class RecordingWriter:
         self.saved_gifs.append((images, output_file, duration_ms))
 
 
+class RecordingRenderService:
+    def __init__(self, response: RenderResponse) -> None:
+        self.response = response
+        self.render_requests: list[RenderRequest] = []
+        self.render_to_file_calls: list[tuple[RenderRequest, Path | None]] = []
+
+    def render(self, request: RenderRequest) -> RenderResponse:
+        self.render_requests.append(request)
+        return self.response
+
+    def render_to_file(
+        self,
+        request: RenderRequest,
+        output_file: Path | None = None,
+    ) -> RenderResponse:
+        self.render_to_file_calls.append((request, output_file))
+        if output_file is None:
+            return self.response
+        return RenderResponse(
+            result=self.response.result,
+            input_paths=self.response.input_paths,
+            output_file=output_file,
+        )
+
+
 def test_render_to_file_defaults_to_out_folder_when_output_is_omitted(
     tmp_path: Path,
 ) -> None:
@@ -71,6 +99,91 @@ def test_render_to_file_defaults_to_out_folder_when_output_is_omitted(
     assert response.output_file.parent == tmp_path / "out"
     assert response.output_file.suffix == ".png"
     assert response.output_file.name.endswith("-timeslice.png")
+
+
+def test_app_render_folder_is_pure_and_does_not_write(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    input_folder = tmp_path / "frames"
+    expected = RenderResponse(
+        result=render_images(
+            images=[_solid_frame(0), _solid_frame(255)],
+            spec=TimesliceSpec(num_slices=2),
+        ),
+        input_paths=[input_folder / "001.png", input_folder / "002.png"],
+    )
+    service = RecordingRenderService(response=expected)
+    monkeypatch.setattr(app_module, "create_render_service", lambda: service)
+
+    response = app_module.render_folder(
+        input_folder=input_folder,
+        spec=TimesliceSpec(num_slices=2),
+    )
+
+    assert response == expected
+    assert len(service.render_requests) == 1
+    assert service.render_requests[0].input_folder == input_folder
+    assert service.render_requests[0].spec == TimesliceSpec(num_slices=2)
+    assert service.render_to_file_calls == []
+
+
+def test_app_render_folder_to_file_delegates_to_explicit_save_path(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    input_folder = tmp_path / "frames"
+    output_file = tmp_path / "out" / "timeslice.png"
+    expected = RenderResponse(
+        result=render_images(
+            images=[_solid_frame(0), _solid_frame(255)],
+            spec=TimesliceSpec(num_slices=2),
+        ),
+        input_paths=[input_folder / "001.png", input_folder / "002.png"],
+    )
+    service = RecordingRenderService(response=expected)
+    monkeypatch.setattr(app_module, "create_render_service", lambda: service)
+
+    response = app_module.render_folder_to_file(
+        input_folder=input_folder,
+        output_file=output_file,
+        spec=TimesliceSpec(num_slices=2),
+    )
+
+    assert response.output_file == output_file
+    assert service.render_requests == []
+    assert len(service.render_to_file_calls) == 1
+    request, requested_output = service.render_to_file_calls[0]
+    assert request.input_folder == input_folder
+    assert request.spec == TimesliceSpec(num_slices=2)
+    assert requested_output == output_file
+
+
+def test_app_render_folder_to_file_defaults_output_path_when_omitted(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    input_folder = tmp_path / "frames"
+    expected = RenderResponse(
+        result=render_images(
+            images=[_solid_frame(0), _solid_frame(255)],
+            spec=TimesliceSpec(num_slices=2),
+        ),
+        input_paths=[input_folder / "001.png", input_folder / "002.png"],
+    )
+    service = RecordingRenderService(response=expected)
+    monkeypatch.setattr(app_module, "create_render_service", lambda: service)
+
+    response = app_module.render_folder_to_file(
+        input_folder=input_folder,
+        spec=TimesliceSpec(num_slices=2),
+    )
+
+    assert len(service.render_to_file_calls) == 1
+    request, requested_output = service.render_to_file_calls[0]
+    assert request.input_folder == input_folder
+    assert requested_output is None
+    assert response.output_file is None
 
 
 def test_render_progression_gif_uses_power_of_two_slice_counts(

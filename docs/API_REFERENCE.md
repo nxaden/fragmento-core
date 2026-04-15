@@ -10,6 +10,7 @@ from fragmento_engine import (
     SliceEffects,
     TimesliceSpec,
     render_folder,
+    render_folder_to_file,
     render_images,
     render_progression_gif,
 )
@@ -99,20 +100,16 @@ print(result.used_frame_indices)
 ```python
 render_folder(
     input_folder: Path,
-    output_file: Path | None = None,
     spec: TimesliceSpec | None = None,
     resize_mode: Literal["crop", "resize"] = "crop",
 ) -> RenderResponse
 ```
 
-Load an image sequence from a folder, render a timeslice, and save the result
-to disk.
+Load an image sequence from a folder and render a timeslice without saving it.
 
 Parameters:
 
 - `input_folder`: Directory containing the source images.
-- `output_file`: Optional destination path for the rendered image. If omitted,
-  a timestamped `.png` is written to an `out/` folder next to `input_folder`.
 - `spec`: Optional render specification. Defaults to `TimesliceSpec()`.
 - `resize_mode`: Strategy used when later source images do not match the base
   frame size:
@@ -127,7 +124,7 @@ Raises:
 
 - `ValueError`: If the folder does not exist, is not a directory, contains no
   supported images, or the render specification is invalid.
-- `OSError`: If image loading or output writing fails.
+- `OSError`: If image loading fails.
 
 Example:
 
@@ -159,6 +156,53 @@ response = render_folder(
 
 print(response.result.image.shape)
 print(len(response.input_paths))
+print(response.output_file is None)
+```
+
+### `fragmento_engine.render_folder_to_file`
+
+```python
+render_folder_to_file(
+    input_folder: Path,
+    output_file: Path | None = None,
+    spec: TimesliceSpec | None = None,
+    resize_mode: Literal["crop", "resize"] = "crop",
+) -> RenderResponse
+```
+
+Load an image sequence from a folder, render a timeslice, and save the result
+to disk.
+
+Parameters:
+
+- `input_folder`: Directory containing the source images.
+- `output_file`: Optional destination path for the rendered image. If omitted,
+  a timestamped `.png` is written to an `out/` folder next to `input_folder`.
+- `spec`: Optional render specification. Defaults to `TimesliceSpec()`.
+- `resize_mode`: Strategy used when later source images do not match the base
+  frame size.
+
+Returns:
+
+- `RenderResponse`: Composite output plus the ordered input paths used and the
+  saved output path.
+
+Example:
+
+```python
+from pathlib import Path
+
+from fragmento_engine import SliceEffects, TimesliceSpec, render_folder_to_file
+
+response = render_folder_to_file(
+    input_folder=Path("./frames"),
+    spec=TimesliceSpec(
+        orientation="horizontal",
+        num_slices=24,
+        effects=SliceEffects(border_width=2, feather_width=6),
+    ),
+)
+
 print(response.output_file)
 ```
 
@@ -646,6 +690,7 @@ from fragmento_engine import (
     SliceEffects,
     TimesliceSpec,
     render_folder,
+    render_folder_to_file,
     render_images,
     render_progression_gif,
 )

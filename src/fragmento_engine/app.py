@@ -39,6 +39,25 @@ def render_images(
 
 def render_folder(
     input_folder: Path,
+    spec: TimesliceSpec | None = None,
+    resize_mode: ResizeMode = "crop",
+) -> RenderResponse:
+    """Render a timeslice from a folder without writing an output file."""
+    if spec is None:
+        spec = TimesliceSpec()
+
+    service = create_render_service()
+    request = RenderRequest(
+        input_folder=input_folder,
+        spec=spec,
+        resize_mode=resize_mode,
+    )
+
+    return service.render(request=request)
+
+
+def render_folder_to_file(
+    input_folder: Path,
     output_file: Path | None = None,
     spec: TimesliceSpec | None = None,
     resize_mode: ResizeMode = "crop",
