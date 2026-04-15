@@ -6,14 +6,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Protocol, Sequence
 
-from fragmento_engine.domain.compositor import build_timeslice
-from fragmento_engine.domain.models import (
+from pytimeslice.domain.compositor import build_timeslice
+from pytimeslice.domain.models import (
     CompositeResult,
     RGBImage,
     TimesliceSpec,
     validate_slice_effects,
 )
-from fragmento_engine.shared.types import ResizeMode
+from pytimeslice.shared.types import ResizeMode
 
 
 class ImageSequenceLoader(Protocol):

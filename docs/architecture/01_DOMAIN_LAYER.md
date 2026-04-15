@@ -2,7 +2,9 @@
 
 ## Purpose
 
-The domain layer defines the core meaning of Fragmento Engine. It contains the concepts, rules, and transformations that determine what a time-slice render is and how it should behave.
+The domain layer defines the core meaning of `pytimeslice`. It contains the
+concepts, rules, and transformations that determine what a time-slice render is
+and how it should behave.
 
 Its job is to represent rendering intent and translate that intent into deterministic image construction rules. This layer should not depend on UI code, file system access, Pillow, OpenCV, or workflow orchestration.
 
@@ -95,6 +97,8 @@ For example:
 
 The domain layer is a good extensibility point because it lets you add new rendering behavior without rewriting interfaces or infrastructure.
 
-For example, we can extend Fragmento with alternate frame selection strategies, richer plans, alignment-aware planning, or metadata-rich render results.
+For example, we can extend `pytimeslice` with alternate frame selection
+strategies, richer plans, alignment-aware planning, or metadata-rich render
+results.
 
 Each new domain concept can build on the same rendering models and rules while extending the meaning of the engine in a controlled way.

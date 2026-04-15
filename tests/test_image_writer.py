@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageSequence
 
-from fragmento_engine.infrastructure.image_writer import PILImageWriter
+from pytimeslice.infrastructure.image_writer import PILImageWriter
 
 
 def _solid_frame(value: int, *, width: int = 6, height: int = 4) -> np.ndarray:

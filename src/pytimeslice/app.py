@@ -2,16 +2,16 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fragmento_engine.application.services import (
+from pytimeslice.application.services import (
     ProgressionGifRenderResponse,
     RenderRequest,
     RenderResponse,
     RenderTimesliceService,
 )
-from fragmento_engine.domain.models import RGBImage, TimesliceSpec
-from fragmento_engine.infrastructure.image_loader import PILImageSequenceLoader
-from fragmento_engine.infrastructure.image_writer import PILImageWriter
-from fragmento_engine.shared.types import ResizeMode
+from pytimeslice.domain.models import RGBImage, TimesliceSpec
+from pytimeslice.infrastructure.image_loader import PILImageSequenceLoader
+from pytimeslice.infrastructure.image_writer import PILImageWriter
+from pytimeslice.shared.types import ResizeMode
 
 
 def create_render_service() -> RenderTimesliceService:
@@ -30,7 +30,7 @@ def render_images(
 
     This is the simplest API for callers that already have images loaded.
     """
-    from fragmento_engine.domain.compositor import build_timeslice
+    from pytimeslice.domain.compositor import build_timeslice
 
     if spec is None:
         spec = TimesliceSpec()

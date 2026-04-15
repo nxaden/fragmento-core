@@ -3,19 +3,19 @@
 This document collects practical CLI recipes for experimenting with the
 timeslice overlay system.
 
-Use `fragmento` if the package is installed. If not, replace it with:
+Use `pytimeslice` if the package is installed. If not, replace it with:
 
 ```sh
-python -m fragmento_engine.interface.cli
+python -m pytimeslice.interface.cli
 ```
 
-If you omit the output path, Fragmento writes a timestamped file into an
+If you omit the output path, `pytimeslice` writes a timestamped file into an
 `out/` folder next to the input folder.
 
 ## Highlight Only
 
 ```sh
-fragmento ./frames ./out/highlight-only.jpg \
+pytimeslice ./frames ./out/highlight-only.jpg \
   --orientation vertical \
   --slices 24 \
   --highlight 6 \
@@ -25,7 +25,7 @@ fragmento ./frames ./out/highlight-only.jpg \
 ## Warm Highlight
 
 ```sh
-fragmento ./frames ./out/highlight-warm.jpg \
+pytimeslice ./frames ./out/highlight-warm.jpg \
   --orientation vertical \
   --slices 24 \
   --highlight 8 \
@@ -36,7 +36,7 @@ fragmento ./frames ./out/highlight-warm.jpg \
 ## Soft Fixed Border
 
 ```sh
-fragmento ./frames ./out/border-soft.jpg \
+pytimeslice ./frames ./out/border-soft.jpg \
   --orientation vertical \
   --slices 24 \
   --border 4 \
@@ -47,7 +47,7 @@ fragmento ./frames ./out/border-soft.jpg \
 ## Auto-Sampled Border
 
 ```sh
-fragmento ./frames ./out/border-auto.jpg \
+pytimeslice ./frames ./out/border-auto.jpg \
   --orientation vertical \
   --slices 24 \
   --border 5 \
@@ -58,7 +58,7 @@ fragmento ./frames ./out/border-auto.jpg \
 ## Gradient Border
 
 ```sh
-fragmento ./frames ./out/border-gradient.jpg \
+pytimeslice ./frames ./out/border-gradient.jpg \
   --orientation vertical \
   --slices 24 \
   --border 8 \
@@ -71,7 +71,7 @@ fragmento ./frames ./out/border-gradient.jpg \
 Linear:
 
 ```sh
-fragmento ./frames ./out/curve-linear.jpg \
+pytimeslice ./frames ./out/curve-linear.jpg \
   --orientation vertical \
   --slices 24 \
   --border 6 \
@@ -87,7 +87,7 @@ fragmento ./frames ./out/curve-linear.jpg \
 Smoothstep:
 
 ```sh
-fragmento ./frames ./out/curve-smoothstep.jpg \
+pytimeslice ./frames ./out/curve-smoothstep.jpg \
   --orientation vertical \
   --slices 24 \
   --border 6 \
@@ -103,7 +103,7 @@ fragmento ./frames ./out/curve-smoothstep.jpg \
 Cosine:
 
 ```sh
-fragmento ./frames ./out/curve-cosine.jpg \
+pytimeslice ./frames ./out/curve-cosine.jpg \
   --orientation vertical \
   --slices 24 \
   --border 6 \
@@ -119,7 +119,7 @@ fragmento ./frames ./out/curve-cosine.jpg \
 Hard:
 
 ```sh
-fragmento ./frames ./out/curve-hard.jpg \
+pytimeslice ./frames ./out/curve-hard.jpg \
   --orientation vertical \
   --slices 24 \
   --border 6 \
@@ -135,7 +135,7 @@ fragmento ./frames ./out/curve-hard.jpg \
 ## Full Overlay Stack
 
 ```sh
-fragmento ./frames ./out/full-overlay.jpg \
+pytimeslice ./frames ./out/full-overlay.jpg \
   --orientation horizontal \
   --slices 30 \
   --reverse-time \
@@ -154,7 +154,7 @@ fragmento ./frames ./out/full-overlay.jpg \
 ## Progression GIF
 
 ```sh
-fragmento ./frames \
+pytimeslice ./frames \
   --progression-gif \
   --gif-smooth-loop \
   --gif-frame-duration-ms 180 \

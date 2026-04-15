@@ -3,8 +3,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from fragmento_engine import render_folder_to_file, render_progression_gif
-from fragmento_engine import SliceEffects, TimesliceSpec
+from pytimeslice import render_folder_to_file, render_progression_gif
+from pytimeslice import SliceEffects, TimesliceSpec
 
 
 def _parse_non_negative_int(value: str) -> int:

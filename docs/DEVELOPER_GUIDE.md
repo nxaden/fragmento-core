@@ -2,7 +2,8 @@
 
 ## Overview
 
-This guide explains how to work with the Fragmento codebase as it grows from a simple timeslice engine into a larger application.
+This guide explains how to work with the `pytimeslice` codebase as it grows
+from a simple timeslice engine into a larger application.
 
 The main goals are to preserve separation between:
 
@@ -29,7 +30,7 @@ Use this rule of thumb:
 ## Recommended Project Structure
 
 ```text
-fragmento_engine/
+pytimeslice/
   domain/
     models.py
     planner.py
@@ -122,7 +123,7 @@ Example:
 from dataclasses import dataclass
 from pathlib import Path
 
-from fragmento_engine.domain.models import CompositeResult, TimesliceSpec
+from pytimeslice.domain.models import CompositeResult, TimesliceSpec
 
 
 @dataclass(frozen=True)

@@ -1,6 +1,7 @@
-# Fragmento Engine
+# pytimeslice
 
-Fragmento Engine is the core image-processing library behind Fragmento. It takes an ordered image sequence and a time-slice specification, then produces a composite time-slice image.
+`pytimeslice` is a Python image-processing library for building composite
+timeslice images from ordered frame sequences.
 
 The project is designed as a reusable Python engine first, with thin interfaces such as a CLI layered on top.
 
@@ -32,7 +33,7 @@ Current focus includes:
 
 ## Architecture
 
-Fragmento Engine is organized into layers:
+`pytimeslice` is organized into layers:
 
 - **Domain**: core models and time-slice logic
 - **Application**: render workflows and service orchestration
@@ -46,7 +47,7 @@ for the Python API surface and module-level reference.
 
 ```text
 src/
-└── fragmento_engine/
+└── pytimeslice/
     ├── __init__.py
     ├── app.py
     ├── application/
@@ -75,7 +76,7 @@ make setup
 Once the package is published, the install command will be:
 
 ```sh
-pip install fragmento-engine
+pip install pytimeslice
 ```
 
 ## Development
@@ -93,14 +94,14 @@ Committed sample inputs for experimentation and future fixtures live under:
 
 ## Library Usage
 
-Fragmento Engine is intended to be usable as a Python library.
+`pytimeslice` is intended to be usable as a Python library.
 
 Example:
 
 ```python
 from pathlib import Path
 
-from fragmento_engine import SliceEffects, TimesliceSpec, render_folder
+from pytimeslice import SliceEffects, TimesliceSpec, render_folder
 
 spec = TimesliceSpec(
     orientation="vertical",
@@ -132,7 +133,7 @@ print(response.result.image.shape)
 To render and save explicitly:
 
 ```python
-from fragmento_engine import render_folder_to_file
+from pytimeslice import render_folder_to_file
 
 saved = render_folder_to_file(
     input_folder=Path("./frames"),
@@ -149,16 +150,16 @@ A CLI interface can be provided on top of the engine so a folder of source
 frames can be rendered directly from the command line.
 
 ```sh
-fragmento ./frames --orientation vertical --slices 20
+pytimeslice ./frames --orientation vertical --slices 20
 ```
 
-If no output path is provided, Fragmento writes a timestamped file into an
+If no output path is provided, `pytimeslice` writes a timestamped file into an
 `out/` folder next to the input folder.
 
 Example with slice effects:
 
 ```sh
-fragmento ./frames \
+pytimeslice ./frames \
   --orientation vertical \
   --slices 20 \
   --border 2 \
@@ -175,7 +176,7 @@ fragmento ./frames \
 Progression GIF example:
 
 ```sh
-fragmento ./frames \
+pytimeslice ./frames \
   --progression-gif \
   --gif-smooth-loop \
   --gif-frame-duration-ms 180 \

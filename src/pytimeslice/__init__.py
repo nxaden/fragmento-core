@@ -1,10 +1,10 @@
-from fragmento_engine.app import (
+from pytimeslice.app import (
     render_folder,
     render_folder_to_file,
     render_images,
     render_progression_gif,
 )
-from fragmento_engine.domain.models import SliceEffects, TimesliceSpec
+from pytimeslice.domain.models import SliceEffects, TimesliceSpec
 
 __all__ = [
     "render_folder",

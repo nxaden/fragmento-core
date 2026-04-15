@@ -24,18 +24,18 @@ work.
 
 Use the existing layer split consistently:
 
-- `src/fragmento_engine/domain/`: slice math, planning, compositing, render
+- `src/pytimeslice/domain/`: slice math, planning, compositing, render
   validation that changes what the engine means
-- `src/fragmento_engine/application/`: workflows and orchestration
-- `src/fragmento_engine/infrastructure/`: Pillow, filesystem, loading, writing
-- `src/fragmento_engine/interface/`: CLI and user-facing invocation
+- `src/pytimeslice/application/`: workflows and orchestration
+- `src/pytimeslice/infrastructure/`: Pillow, filesystem, loading, writing
+- `src/pytimeslice/interface/`: CLI and user-facing invocation
 
 If a change crosses layers, keep the business rule in the lower layer and keep
 the upper layer thin.
 
 ## Public API Rules
 
-Package-root imports live in `src/fragmento_engine/__init__.py`.
+Package-root imports live in `src/pytimeslice/__init__.py`.
 
 Current public workflow split:
 

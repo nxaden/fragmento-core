@@ -3,7 +3,7 @@ from typing import Sequence
 
 from PIL import Image
 
-from fragmento_engine.domain.models import RGBImage
+from pytimeslice.domain.models import RGBImage
 
 
 class PILImageWriter:

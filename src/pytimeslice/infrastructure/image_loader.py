@@ -6,8 +6,8 @@ from typing import Sequence
 import numpy as np
 from PIL import Image
 
-from fragmento_engine.shared.types import ResizeMode
-from fragmento_engine.domain.models import RGBImage
+from pytimeslice.shared.types import ResizeMode
+from pytimeslice.domain.models import RGBImage
 
 VALID_EXTENSIONS = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp", ".webp"}
 

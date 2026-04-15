@@ -91,6 +91,7 @@ For example:
 
 Services are a good extensibility point because they let you add workflows without changing the core domain.
 
-For example, we can extend Fragmento with the notion of 'projects' via a `ProjectSaveService` and `ProjectLoadService`.
+For example, we can extend `pytimeslice` with the notion of 'projects' via a
+`ProjectSaveService` and `ProjectLoadService`.
 
 Each new service can reuse the same domain models and processing primitives, while exposing a different workflow.

@@ -3,16 +3,16 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-import fragmento_engine.app as app_module
-from fragmento_engine import render_images
-from fragmento_engine.application.services import (
+import pytimeslice.app as app_module
+from pytimeslice import render_images
+from pytimeslice.application.services import (
     ProgressionGifRenderResponse,
     RenderRequest,
     RenderResponse,
     RenderTimesliceService,
 )
-from fragmento_engine.domain.models import RGBImage, SliceEffects, TimesliceSpec
-from fragmento_engine.interface.cli import build_parser
+from pytimeslice.domain.models import RGBImage, SliceEffects, TimesliceSpec
+from pytimeslice.interface.cli import build_parser
 
 
 def _solid_frame(value: int, *, width: int = 8, height: int = 2) -> RGBImage:

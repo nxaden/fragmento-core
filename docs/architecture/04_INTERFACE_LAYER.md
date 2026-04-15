@@ -2,7 +2,9 @@
 
 ## Purpose
 
-The interface layer exposes Fragmento Engine to external consumers. It is the outermost layer of the system and is responsible for translating user or caller interaction into internal engine calls.
+The interface layer exposes `pytimeslice` to external consumers. It is the
+outermost layer of the system and is responsible for translating user or caller
+interaction into internal engine calls.
 
 Its job is to handle concerns such as command-line argument parsing, future desktop UI input, API request handling, status output, and error presentation. Each of the previous interaction styles listed would typically be represented by a distinct interface in the interface layer. This layer should not contain slice planning rules, compositing logic, or technical file handling beyond what is needed to hand work off to the engine.
 
@@ -98,6 +100,7 @@ For example:
 
 The interface layer is a good extensibility point because it lets you add new ways of interacting with the engine without changing the core logic.
 
-For example, we can extend Fragmento with a richer CLI, a desktop interface, notebook helpers, or a web API.
+For example, we can extend `pytimeslice` with a richer CLI, a desktop
+interface, notebook helpers, or a web API.
 
 Each new interface can reuse the same public API, application workflows, and domain models while changing only how the engine is exposed to users or external systems.

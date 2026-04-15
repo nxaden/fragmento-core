@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "fragmento-engine"
+name = "pytimeslice"
 version = "0.1.0"
-description = "A Python timeslice rendering engine for building composite images from frame sequences."
+description = "A Python timeslice rendering library for building composite images from frame sequences."
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.11"
 authors = [{ name = "Abdullah Shahid" }]
@@ -56,13 +56,13 @@ Issues = "https://github.com/nxaden/fragmento-engine/issues"
 Documentation = "https://github.com/nxaden/fragmento-engine/tree/main/docs"
 
 [project.scripts]
-fragmento = "fragmento_engine.interface.cli:main"
+pytimeslice = "pytimeslice.interface.cli:main"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
 
 [tool.setuptools.package-data]
-fragmento_engine = ["py.typed"]
+pytimeslice = ["py.typed"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

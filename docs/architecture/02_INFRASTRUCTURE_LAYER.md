@@ -2,7 +2,10 @@
 
 ## Purpose
 
-The infrastructure layer handles the technical details that allow Fragmento Engine to interact with the outside world. It provides the concrete adapters that support rendering without defining the rendering rules themselves.
+The infrastructure layer handles the technical details that allow
+`pytimeslice` to interact with the outside world. It provides the concrete
+adapters that support rendering without defining the rendering rules
+themselves.
 
 Its job is to manage concerns such as file discovery, image decoding, resizing or cropping, integration with Pillow or OpenCV, caching, and output writing. Each of the previous concerns listed would typically be represented by one or more concrete adapters in the infrastructure layer. This layer should not contain slice planning rules, compositing policy, or UI-specific behavior.
 
@@ -95,6 +98,8 @@ For example:
 
 The infrastructure layer is a good extensibility point because it lets you change technical implementations without changing the core rendering logic.
 
-For example, we can extend Fragmento with alternative loaders, OpenCV-based preprocessing, metadata writers, cache backends, or cloud storage adapters.
+For example, we can extend `pytimeslice` with alternative loaders,
+OpenCV-based preprocessing, metadata writers, cache backends, or cloud storage
+adapters.
 
 Each new adapter can reuse the same application workflows and domain models while changing only how the system interacts with external tools and resources.

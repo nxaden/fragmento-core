@@ -9,7 +9,7 @@ setup:
 	$(ACTIVATE) && pre-commit install
 
 run:
-	$(ACTIVATE) && python -m fragmento_engine.interface.cli --help
+	$(ACTIVATE) && python -m pytimeslice.interface.cli --help
 
 test:
 	$(ACTIVATE) && pytest

@@ -1,7 +1,7 @@
 import numpy as np
 
-from fragmento_engine import SliceEffects, TimesliceSpec, render_images
-from fragmento_engine.interface.cli import _build_effects, build_parser
+from pytimeslice import SliceEffects, TimesliceSpec, render_images
+from pytimeslice.interface.cli import _build_effects, build_parser
 
 
 def _solid_frame(value: int, *, width: int = 8, height: int = 2) -> np.ndarray:

@@ -2,11 +2,11 @@
 
 ## Overview
 
-Fragmento Engine exposes a small public API at the package root for the common
+`pytimeslice` exposes a small public API at the package root for the common
 library use case:
 
 ```python
-from fragmento_engine import (
+from pytimeslice import (
     SliceEffects,
     TimesliceSpec,
     render_folder,
@@ -17,12 +17,12 @@ from fragmento_engine import (
 ```
 
 For advanced usage, lower-level modules are also available under
-`fragmento_engine.application`, `fragmento_engine.domain`,
-`fragmento_engine.infrastructure`, and `fragmento_engine.interface`.
+`pytimeslice.application`, `pytimeslice.domain`,
+`pytimeslice.infrastructure`, and `pytimeslice.interface`.
 
 ## Public API
 
-### `fragmento_engine.TimesliceSpec`
+### `pytimeslice.TimesliceSpec`
 
 ```python
 TimesliceSpec(
@@ -50,7 +50,7 @@ Raises:
 - `ValueError`: Raised later in the render pipeline if the requested slice count
   is less than `1` or exceeds the available output pixel span.
 
-### `fragmento_engine.render_images`
+### `pytimeslice.render_images`
 
 ```python
 render_images(
@@ -80,7 +80,7 @@ Raises:
 Example:
 
 ```python
-from fragmento_engine import SliceEffects, TimesliceSpec, render_images
+from pytimeslice import SliceEffects, TimesliceSpec, render_images
 
 result = render_images(
     images=frames,
@@ -95,7 +95,7 @@ print(result.image.shape)
 print(result.used_frame_indices)
 ```
 
-### `fragmento_engine.render_folder`
+### `pytimeslice.render_folder`
 
 ```python
 render_folder(
@@ -131,7 +131,7 @@ Example:
 ```python
 from pathlib import Path
 
-from fragmento_engine import SliceEffects, TimesliceSpec, render_folder
+from pytimeslice import SliceEffects, TimesliceSpec, render_folder
 
 response = render_folder(
     input_folder=Path("./frames"),
@@ -159,7 +159,7 @@ print(len(response.input_paths))
 print(response.output_file is None)
 ```
 
-### `fragmento_engine.render_folder_to_file`
+### `pytimeslice.render_folder_to_file`
 
 ```python
 render_folder_to_file(
@@ -192,7 +192,7 @@ Example:
 ```python
 from pathlib import Path
 
-from fragmento_engine import SliceEffects, TimesliceSpec, render_folder_to_file
+from pytimeslice import SliceEffects, TimesliceSpec, render_folder_to_file
 
 response = render_folder_to_file(
     input_folder=Path("./frames"),
@@ -206,7 +206,7 @@ response = render_folder_to_file(
 print(response.output_file)
 ```
 
-### `fragmento_engine.render_progression_gif`
+### `pytimeslice.render_progression_gif`
 
 ```python
 render_progression_gif(
@@ -244,7 +244,7 @@ Example:
 ```python
 from pathlib import Path
 
-from fragmento_engine import SliceEffects, TimesliceSpec, render_progression_gif
+from pytimeslice import SliceEffects, TimesliceSpec, render_progression_gif
 
 response = render_progression_gif(
     input_folder=Path("./frames"),
@@ -273,7 +273,7 @@ print(response.last_emitted_result.image.shape)
 
 ## Data Types
 
-### `fragmento_engine.domain.models`
+### `pytimeslice.domain.models`
 
 #### `Orientation`
 
@@ -417,7 +417,7 @@ Final render output plus traceable planning metadata.
 
 ## Application Layer
 
-### `fragmento_engine.application.services.RenderRequest`
+### `pytimeslice.application.services.RenderRequest`
 
 ```python
 RenderRequest(
@@ -429,7 +429,7 @@ RenderRequest(
 
 Structured input for the folder-based render workflow.
 
-### `fragmento_engine.application.services.RenderResponse`
+### `pytimeslice.application.services.RenderResponse`
 
 ```python
 RenderResponse(
@@ -441,7 +441,7 @@ RenderResponse(
 
 Structured output for the folder-based render workflow.
 
-### `fragmento_engine.application.services.ProgressionGifRenderResponse`
+### `pytimeslice.application.services.ProgressionGifRenderResponse`
 
 ```python
 ProgressionGifRenderResponse(
@@ -456,7 +456,7 @@ ProgressionGifRenderResponse(
 
 Structured output for the progression GIF workflow.
 
-### `fragmento_engine.application.services.ImageSequenceLoader`
+### `pytimeslice.application.services.ImageSequenceLoader`
 
 Protocol used by the application service to discover and load image sequences.
 
@@ -470,7 +470,7 @@ load_images(
 ) -> list[RGBImage]
 ```
 
-### `fragmento_engine.application.services.ImageWriter`
+### `pytimeslice.application.services.ImageWriter`
 
 Protocol used by the application service to save rendered images.
 
@@ -486,7 +486,7 @@ save_gif(
 ) -> None
 ```
 
-### `fragmento_engine.application.services.RenderTimesliceService`
+### `pytimeslice.application.services.RenderTimesliceService`
 
 ```python
 RenderTimesliceService(
@@ -540,7 +540,7 @@ Builds a power-of-two slice progression and persists it as an animated GIF.
 create_render_service() -> RenderTimesliceService
 ```
 
-Factory defined in `fragmento_engine.app` that wires the default production
+Factory defined in `pytimeslice.app` that wires the default production
 adapters:
 
 - `PILImageSequenceLoader`
@@ -548,7 +548,7 @@ adapters:
 
 ## Domain Functions
 
-### `fragmento_engine.domain.planner.build_timeslice_plan`
+### `pytimeslice.domain.planner.build_timeslice_plan`
 
 ```python
 build_timeslice_plan(
@@ -572,7 +572,7 @@ Raises:
   `num_slices < 1`, `orientation` is invalid, or `num_slices` exceeds the
   output pixel span.
 
-### `fragmento_engine.domain.compositor.apply_timeslice_plan`
+### `pytimeslice.domain.compositor.apply_timeslice_plan`
 
 ```python
 apply_timeslice_plan(
@@ -584,7 +584,7 @@ apply_timeslice_plan(
 
 Apply a previously generated `TimeslicePlan` to a normalized image sequence.
 
-### `fragmento_engine.domain.compositor.build_timeslice`
+### `pytimeslice.domain.compositor.build_timeslice`
 
 ```python
 build_timeslice(
@@ -597,7 +597,7 @@ Convenience wrapper that combines planning and compositing.
 
 ## Infrastructure
 
-### `fragmento_engine.infrastructure.image_loader.VALID_EXTENSIONS`
+### `pytimeslice.infrastructure.image_loader.VALID_EXTENSIONS`
 
 ```python
 {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp", ".webp"}
@@ -605,7 +605,7 @@ Convenience wrapper that combines planning and compositing.
 
 Supported file extensions for folder-based discovery.
 
-### `fragmento_engine.infrastructure.image_loader.center_crop_to_size`
+### `pytimeslice.infrastructure.image_loader.center_crop_to_size`
 
 ```python
 center_crop_to_size(
@@ -617,7 +617,7 @@ center_crop_to_size(
 
 Resize an image to fill the target size, then crop the centered region.
 
-### `fragmento_engine.infrastructure.image_loader.PILImageSequenceLoader`
+### `pytimeslice.infrastructure.image_loader.PILImageSequenceLoader`
 
 Pillow-based adapter that implements the `ImageSequenceLoader` protocol.
 
@@ -637,7 +637,7 @@ Notes:
 - The first image establishes the canonical output size.
 - Later images are cropped or resized to match the first image.
 
-### `fragmento_engine.infrastructure.image_writer.PILImageWriter`
+### `pytimeslice.infrastructure.image_writer.PILImageWriter`
 
 Pillow-based adapter that implements the `ImageWriter` protocol.
 
@@ -660,7 +660,7 @@ Behavior:
 
 ## CLI Module
 
-The CLI lives in `fragmento_engine.interface.cli`.
+The CLI lives in `pytimeslice.interface.cli`.
 
 ### `build_parser`
 
@@ -668,7 +668,7 @@ The CLI lives in `fragmento_engine.interface.cli`.
 build_parser() -> argparse.ArgumentParser
 ```
 
-Creates the command-line parser for the `fragmento` command.
+Creates the command-line parser for the `pytimeslice` command.
 
 ### `main`
 
@@ -713,7 +713,7 @@ Validation notes:
 Prefer the package root for normal library usage:
 
 ```python
-from fragmento_engine import (
+from pytimeslice import (
     SliceEffects,
     TimesliceSpec,
     render_folder,
@@ -725,8 +725,8 @@ from fragmento_engine import (
 
 Use lower-level modules when you need tighter control over the render pipeline:
 
-- `fragmento_engine.application.services`: Workflow orchestration and service
+- `pytimeslice.application.services`: Workflow orchestration and service
   boundaries.
-- `fragmento_engine.domain.*`: Planning and compositing primitives.
-- `fragmento_engine.infrastructure.*`: Pillow-based adapters for file I/O.
-- `fragmento_engine.interface.cli`: Command-line entry point.
+- `pytimeslice.domain.*`: Planning and compositing primitives.
+- `pytimeslice.infrastructure.*`: Pillow-based adapters for file I/O.
+- `pytimeslice.interface.cli`: Command-line entry point.

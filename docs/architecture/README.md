@@ -1,8 +1,9 @@
-# Fragmento Engine Architecture
+# pytimeslice Architecture
 
 ## Overview
 
-Fragmento Engine is a layered Python library for generating time-slice composite images from ordered image sequences.
+`pytimeslice` is a layered Python library for generating time-slice composite
+images from ordered image sequences.
 
 Its purpose is to provide a reusable rendering core that can be used from:
 
@@ -15,7 +16,7 @@ The engine is designed so that rendering logic stays independent from interfaces
 
 ## Core Idea
 
-The central contract of Fragmento Engine is:
+The central contract of `pytimeslice` is:
 
 > Given an ordered sequence of normalized RGB images and a time-slice specification, produce a deterministic composite image.
 
@@ -23,7 +24,7 @@ A user describes the desired render through a `TimesliceSpec`, and the engine tr
 
 ## Architectural Layers
 
-Fragmento Engine is organized into four layers.
+`pytimeslice` is organized into four layers.
 
 ### Domain
 
@@ -99,7 +100,7 @@ These models define the vocabulary of the engine.
 
 ## Design Priorities
 
-Fragmento Engine emphasizes:
+`pytimeslice` emphasizes:
 
 - deterministic output
 - clean separation of concerns
@@ -115,6 +116,6 @@ The architecture is intended to support future additions such as:
 - metadata export
 - batch rendering
 - alternate frame selection strategies
-- tighter integration with the Fragmento web application
+- tighter integration with future applications built on top of `pytimeslice`
 
 The goal is to extend the system without rewriting the core rendering logic.
