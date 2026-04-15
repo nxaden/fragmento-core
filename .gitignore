@@ -9,4 +9,8 @@ dist/
 build/
 .DS_Store
 *.egg-info/
-*.jpg
+/*.jpg
+/*.jpeg
+/*.png
+/*.gif
+examples/media/toronto-skyline/

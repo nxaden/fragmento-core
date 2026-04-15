@@ -76,6 +76,8 @@ Avoid duplicating validation logic across modules when one shared helper will do
 - Do not commit generated outputs, caches, or local experiment files
 - Keep sample assets in `examples/` or `tests/fixtures/` rather than the repo
   root
+- Canonical committed sample input locations:
+  `examples/media/placeholder-sequence/` and `tests/fixtures/placeholder-sequence/`
 - Keep output paths under an `out/` directory when a workflow writes files by
   default
 - Prefer small, focused commits with conventional prefixes such as `feat:`,

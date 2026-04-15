@@ -80,6 +80,11 @@ Run tests with:
 make test
 ```
 
+Committed sample inputs for experimentation and future fixtures live under:
+
+- `examples/media/placeholder-sequence/`
+- `tests/fixtures/placeholder-sequence/`
+
 ## Library Usage
 
 Fragmento Engine is intended to be usable as a Python library.
