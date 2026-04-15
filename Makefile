@@ -39,4 +39,7 @@ build:
 check-dist:
 	$(ACTIVATE) && python -m twine check dist/*
 
+publish-testpypi:
+	$(ACTIVATE) && python -m twine upload --repository testpypi dist/*
+
 release-check: check build check-dist

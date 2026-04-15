@@ -7,6 +7,7 @@ and distribution validation through `twine check`.
 
 - Confirm the package name and repository URLs in `pyproject.toml`.
 - Bump the version in `pyproject.toml`.
+- Update `CHANGELOG.md`.
 - Make sure `README.md` still renders correctly as package metadata.
 
 ## Local Release Checklist
@@ -37,10 +38,19 @@ Use TestPyPI first if you want to validate installability and rendered package
 metadata before the real release:
 
 ```sh
-.venv/bin/python -m twine upload --repository testpypi dist/*
+TWINE_USERNAME=__token__ TWINE_PASSWORD=<your-testpypi-token> make publish-testpypi
 ```
 
-Then verify installation from TestPyPI in a clean environment.
+Then verify installation from TestPyPI in a clean environment:
+
+```sh
+python -m pip install \
+  --index-url https://test.pypi.org/simple/ \
+  --extra-index-url https://pypi.org/simple/ \
+  pytimeslice==<version>
+```
+
+If you prefer a config file, Twine also supports credentials in `~/.pypirc`.
 
 ## PyPI
 

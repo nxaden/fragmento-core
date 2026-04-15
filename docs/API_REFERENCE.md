@@ -7,6 +7,7 @@ library use case:
 
 ```python
 from pytimeslice import (
+    __version__,
     SliceEffects,
     TimesliceSpec,
     render_folder,
@@ -21,6 +22,10 @@ For advanced usage, lower-level modules are also available under
 `pytimeslice.infrastructure`, and `pytimeslice.interface`.
 
 ## Public API
+
+### `pytimeslice.__version__`
+
+Runtime version string for the installed package.
 
 ### `pytimeslice.TimesliceSpec`
 

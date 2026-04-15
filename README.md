@@ -204,6 +204,8 @@ make check-dist
 
 The release checklist lives in
 [RELEASING.md](https://github.com/nxaden/pytimeslice/blob/main/RELEASING.md).
+Release notes live in
+[CHANGELOG.md](https://github.com/nxaden/pytimeslice/blob/main/CHANGELOG.md).
 
 ## Roadmap
 
