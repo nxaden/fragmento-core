@@ -15,6 +15,9 @@ from .models import (
 )
 from .planner import build_timeslice_plan
 
+_VALID_BORDER_COLOR_MODES = {"solid", "auto", "gradient"}
+_VALID_CURVES = {"linear", "smoothstep", "cosine", "hard"}
+
 
 def _validate_images(images: Sequence[RGBImage]) -> tuple[int, int, int]:
     if not images:
@@ -37,19 +40,38 @@ def _validate_images(images: Sequence[RGBImage]) -> tuple[int, int, int]:
     return height, width, channels
 
 
+def _validate_color(name: str, color: SequenceCollection[int]) -> None:
+    if len(color) != 3:
+        raise ValueError(f"{name} must contain exactly 3 channels.")
+    if any(channel < 0 or channel > 255 for channel in color):
+        raise ValueError(f"{name} channels must be between 0 and 255.")
+
+
 def _validate_effects(effects: SliceEffects) -> None:
     if effects.border_width < 0:
         raise ValueError("effects.border_width must be at least 0.")
+    if effects.highlight_width < 0:
+        raise ValueError("effects.highlight_width must be at least 0.")
     if effects.shadow_width < 0:
         raise ValueError("effects.shadow_width must be at least 0.")
     if effects.feather_width < 0:
         raise ValueError("effects.feather_width must be at least 0.")
+    if not 0.0 <= effects.border_opacity <= 1.0:
+        raise ValueError("effects.border_opacity must be between 0.0 and 1.0.")
     if not 0.0 <= effects.shadow_opacity <= 1.0:
         raise ValueError("effects.shadow_opacity must be between 0.0 and 1.0.")
-    if len(effects.border_color) != 3:
-        raise ValueError("effects.border_color must contain exactly 3 channels.")
-    if any(channel < 0 or channel > 255 for channel in effects.border_color):
-        raise ValueError("effects.border_color channels must be between 0 and 255.")
+    if not 0.0 <= effects.highlight_opacity <= 1.0:
+        raise ValueError("effects.highlight_opacity must be between 0.0 and 1.0.")
+    if effects.border_color_mode not in _VALID_BORDER_COLOR_MODES:
+        raise ValueError(
+            "effects.border_color_mode must be one of solid, auto, or gradient."
+        )
+    if effects.curve not in _VALID_CURVES:
+        raise ValueError(
+            "effects.curve must be one of linear, smoothstep, cosine, or hard."
+        )
+    _validate_color("effects.border_color", effects.border_color)
+    _validate_color("effects.highlight_color", effects.highlight_color)
 
 
 def _inner_effect_extent(
@@ -60,15 +82,73 @@ def _inner_effect_extent(
     return min(requested_width, band_span // 2)
 
 
-def _transition_alpha(width: int) -> np.ndarray:
-    return ((np.arange(width, dtype=np.float32) + 0.5) / width).astype(np.float32)
+def _apply_curve(values: np.ndarray, curve: str) -> np.ndarray:
+    if curve == "linear":
+        return values
+    if curve == "smoothstep":
+        return values * values * (3.0 - (2.0 * values))
+    if curve == "cosine":
+        return 0.5 - (0.5 * np.cos(np.pi * values))
+    return np.where(values >= 0.5, 1.0, 0.0).astype(np.float32)
 
 
-def _shadow_weights(width: int, opacity: float, *, reverse: bool = False) -> np.ndarray:
-    weights = opacity * ((np.arange(width, dtype=np.float32) + 1.0) / width)
+def _transition_alpha(width: int, curve: str) -> np.ndarray:
+    alpha = (np.arange(width, dtype=np.float32) + 0.5) / width
+    return _apply_curve(alpha, curve).astype(np.float32)
+
+
+def _effect_weights(
+    width: int,
+    opacity: float,
+    curve: str,
+    *,
+    reverse: bool = False,
+) -> np.ndarray:
+    weights = opacity * _apply_curve(
+        (np.arange(width, dtype=np.float32) + 1.0) / width,
+        curve,
+    )
     if reverse:
         weights = weights[::-1]
     return weights
+
+
+def _sample_edge_color(
+    frame: RGBImage,
+    orientation: str,
+    index: int,
+) -> np.ndarray:
+    if orientation == "vertical":
+        clamped_index = max(0, min(frame.shape[1] - 1, index))
+        return frame[:, clamped_index, :].mean(axis=0, dtype=np.float32)
+
+    clamped_index = max(0, min(frame.shape[0] - 1, index))
+    return frame[clamped_index, :, :].mean(axis=0, dtype=np.float32)
+
+
+def _resolve_border_colors(
+    left_frame: RGBImage,
+    right_frame: RGBImage,
+    orientation: str,
+    boundary: int,
+    width: int,
+    effects: SliceEffects,
+) -> np.ndarray:
+    if effects.border_color_mode == "solid":
+        solid = np.asarray(effects.border_color, dtype=np.float32)
+        return np.repeat(solid[np.newaxis, :], width, axis=0)
+
+    left_color = _sample_edge_color(left_frame, orientation, boundary - 1)
+    right_color = _sample_edge_color(right_frame, orientation, boundary)
+
+    if effects.border_color_mode == "auto":
+        auto_color = (left_color + right_color) / 2.0
+        return np.repeat(auto_color[np.newaxis, :], width, axis=0)
+
+    blend = _transition_alpha(width, effects.curve).reshape(-1, 1)
+    return (left_color.reshape(1, 3) * (1.0 - blend)) + (
+        right_color.reshape(1, 3) * blend
+    )
 
 
 def _blend_boundary(
@@ -79,13 +159,14 @@ def _blend_boundary(
     boundary: int,
     left_extent: int,
     right_extent: int,
+    curve: str,
 ) -> None:
     start = boundary - left_extent
     end = boundary + right_extent
     if start >= end:
         return
 
-    alpha = _transition_alpha(end - start)
+    alpha = _transition_alpha(end - start, curve)
 
     if orientation == "vertical":
         left_region = left_frame[:, start:end, :].astype(np.float32)
@@ -123,6 +204,33 @@ def _apply_shadow_region(
         output[start:end, :, :] = np.rint(region * factors).astype(np.uint8)
 
 
+def _apply_color_region(
+    output: RGBImage,
+    orientation: str,
+    start: int,
+    end: int,
+    weights: np.ndarray,
+    color: SequenceCollection[int],
+) -> None:
+    if start >= end:
+        return
+
+    blend_color = np.asarray(color, dtype=np.float32)
+
+    if orientation == "vertical":
+        region = output[:, start:end, :].astype(np.float32)
+        factors = weights.reshape(1, -1, 1)
+        output[:, start:end, :] = np.rint(
+            region * (1.0 - factors) + blend_color.reshape(1, 1, 3) * factors
+        ).astype(np.uint8)
+    else:
+        region = output[start:end, :, :].astype(np.float32)
+        factors = weights.reshape(-1, 1, 1)
+        output[start:end, :, :] = np.rint(
+            region * (1.0 - factors) + blend_color.reshape(1, 1, 3) * factors
+        ).astype(np.uint8)
+
+
 def _apply_boundary_shadow(
     output: RGBImage,
     orientation: str,
@@ -130,9 +238,10 @@ def _apply_boundary_shadow(
     left_extent: int,
     right_extent: int,
     opacity: float,
+    curve: str,
 ) -> None:
     if left_extent > 0:
-        left_weights = _shadow_weights(left_extent, opacity)
+        left_weights = _effect_weights(left_extent, opacity, curve)
         _apply_shadow_region(
             output=output,
             orientation=orientation,
@@ -142,7 +251,12 @@ def _apply_boundary_shadow(
         )
 
     if right_extent > 0:
-        right_weights = _shadow_weights(right_extent, opacity, reverse=True)
+        right_weights = _effect_weights(
+            right_extent,
+            opacity,
+            curve,
+            reverse=True,
+        )
         _apply_shadow_region(
             output=output,
             orientation=orientation,
@@ -152,25 +266,70 @@ def _apply_boundary_shadow(
         )
 
 
+def _apply_boundary_highlight(
+    output: RGBImage,
+    orientation: str,
+    boundary: int,
+    left_extent: int,
+    right_extent: int,
+    opacity: float,
+    color: SequenceCollection[int],
+    curve: str,
+) -> None:
+    if left_extent > 0:
+        left_weights = _effect_weights(left_extent, opacity, curve)
+        _apply_color_region(
+            output=output,
+            orientation=orientation,
+            start=boundary - left_extent,
+            end=boundary,
+            weights=left_weights,
+            color=color,
+        )
+
+    if right_extent > 0:
+        right_weights = _effect_weights(
+            right_extent,
+            opacity,
+            curve,
+            reverse=True,
+        )
+        _apply_color_region(
+            output=output,
+            orientation=orientation,
+            start=boundary,
+            end=boundary + right_extent,
+            weights=right_weights,
+            color=color,
+        )
+
+
 def _apply_boundary_border(
     output: RGBImage,
     orientation: str,
     boundary: int,
     width: int,
-    color: SequenceCollection[int],
+    colors: np.ndarray,
+    opacity: float,
 ) -> None:
-    if width <= 0:
+    if width <= 0 or opacity <= 0.0:
         return
 
     span = output.shape[1] if orientation == "vertical" else output.shape[0]
     start = max(0, boundary - (width // 2))
     end = min(span, start + width)
-    border_color = np.asarray(color, dtype=np.uint8)
+    overlay = colors[: end - start].astype(np.float32)
 
     if orientation == "vertical":
-        output[:, start:end, :] = border_color
+        region = output[:, start:end, :].astype(np.float32)
+        output[:, start:end, :] = np.rint(
+            region * (1.0 - opacity) + overlay.reshape(1, -1, 3) * opacity
+        ).astype(np.uint8)
     else:
-        output[start:end, :, :] = border_color
+        region = output[start:end, :, :].astype(np.float32)
+        output[start:end, :, :] = np.rint(
+            region * (1.0 - opacity) + overlay.reshape(-1, 1, 3) * opacity
+        ).astype(np.uint8)
 
 
 def _apply_slice_effects(
@@ -203,6 +362,7 @@ def _apply_slice_effects(
                 boundary=boundary,
                 left_extent=feather_left,
                 right_extent=feather_right,
+                curve=effects.curve,
             )
 
         shadow_left = _inner_effect_extent(effects.shadow_width, left_band)
@@ -215,15 +375,41 @@ def _apply_slice_effects(
                 left_extent=shadow_left,
                 right_extent=shadow_right,
                 opacity=effects.shadow_opacity,
+                curve=effects.curve,
+            )
+
+        highlight_left = _inner_effect_extent(effects.highlight_width, left_band)
+        highlight_right = _inner_effect_extent(effects.highlight_width, right_band)
+        if (
+            highlight_left > 0 or highlight_right > 0
+        ) and effects.highlight_opacity > 0.0:
+            _apply_boundary_highlight(
+                output=output,
+                orientation=plan.orientation,
+                boundary=boundary,
+                left_extent=highlight_left,
+                right_extent=highlight_right,
+                opacity=effects.highlight_opacity,
+                color=effects.highlight_color,
+                curve=effects.curve,
             )
 
         if effects.border_width > 0:
+            border_colors = _resolve_border_colors(
+                left_frame=left_frame,
+                right_frame=right_frame,
+                orientation=plan.orientation,
+                boundary=boundary,
+                width=effects.border_width,
+                effects=effects,
+            )
             _apply_boundary_border(
                 output=output,
                 orientation=plan.orientation,
                 boundary=boundary,
                 width=effects.border_width,
-                color=effects.border_color,
+                colors=border_colors,
+                opacity=effects.border_opacity,
             )
 
 

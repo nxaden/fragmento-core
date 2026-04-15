@@ -138,9 +138,14 @@ response = render_folder(
         reverse_time=False,
         effects=SliceEffects(
             border_width=2,
+            border_opacity=0.8,
+            border_color_mode="gradient",
             shadow_width=8,
             shadow_opacity=0.35,
+            highlight_width=4,
+            highlight_opacity=0.2,
             feather_width=6,
+            curve="smoothstep",
         ),
     ),
     resize_mode="crop",
@@ -159,6 +164,23 @@ print(len(response.input_paths))
 ```python
 Orientation = Literal["vertical", "horizontal"]
 ```
+
+#### `BoundaryCurve`
+
+```python
+BoundaryCurve = Literal["linear", "smoothstep", "cosine", "hard"]
+```
+
+Shared ramp shape used by feather, shadow, highlight, and gradient borders.
+
+#### `BorderColorMode`
+
+```python
+BorderColorMode = Literal["solid", "auto", "gradient"]
+```
+
+Controls whether borders use a fixed color, an auto-sampled seam color, or a
+sampled left-to-right gradient.
 
 #### `ResizeMode`
 
@@ -223,9 +245,15 @@ Describes one band in the output composite:
 SliceEffects(
     border_width: int = 0,
     border_color: RGBColor = (255, 255, 255),
+    border_opacity: float = 1.0,
+    border_color_mode: BorderColorMode = "solid",
     shadow_width: int = 0,
     shadow_opacity: float = 0.35,
+    highlight_width: int = 0,
+    highlight_opacity: float = 0.35,
+    highlight_color: RGBColor = (255, 255, 255),
     feather_width: int = 0,
+    curve: BoundaryCurve = "linear",
 )
 ```
 
@@ -233,10 +261,18 @@ Optional boundary treatments applied after the base timeslice is assembled.
 
 - `border_width`: Thickness of the divider line centered on each slice
   boundary.
-- `border_color`: Divider color used when `border_width > 0`.
+- `border_color`: Divider color used when `border_color_mode="solid"`.
+- `border_opacity`: Border blend strength from `0.0` to `1.0`.
+- `border_color_mode`: Chooses a fixed color, an auto-sampled seam color, or a
+  seam-derived gradient.
 - `shadow_width`: Inner shadow width in pixels on each side of a boundary.
 - `shadow_opacity`: Shadow strength from `0.0` to `1.0`.
+- `highlight_width`: Inner highlight width in pixels on each side of a
+  boundary.
+- `highlight_opacity`: Highlight strength from `0.0` to `1.0`.
+- `highlight_color`: Highlight color used when `highlight_width > 0`.
 - `feather_width`: Blend width in pixels applied inside each neighboring slice.
+- `curve`: Ramp shape used by feather, shadow, highlight, and gradient borders.
 
 #### `TimeslicePlan`
 
@@ -489,9 +525,15 @@ Supported arguments:
 - `--reverse-time`
 - `--border`
 - `--border-color`
+- `--border-opacity`
+- `--border-color-mode`
 - `--shadow`
 - `--shadow-opacity`
+- `--highlight`
+- `--highlight-opacity`
+- `--highlight-color`
 - `--feather`
+- `--curve`
 
 ## Stability Guide
 

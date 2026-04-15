@@ -46,15 +46,26 @@ def _parse_color(value: str) -> tuple[int, int, int]:
 
 
 def _build_effects(args: argparse.Namespace) -> SliceEffects | None:
-    if args.border <= 0 and args.shadow <= 0 and args.feather <= 0:
+    if (
+        args.border <= 0
+        and args.shadow <= 0
+        and args.highlight <= 0
+        and args.feather <= 0
+    ):
         return None
 
     return SliceEffects(
         border_width=args.border,
         border_color=args.border_color,
+        border_opacity=args.border_opacity,
+        border_color_mode=args.border_color_mode,
         shadow_width=args.shadow,
         shadow_opacity=args.shadow_opacity,
+        highlight_width=args.highlight,
+        highlight_opacity=args.highlight_opacity,
+        highlight_color=args.highlight_color,
         feather_width=args.feather,
+        curve=args.curve,
     )
 
 
@@ -90,6 +101,21 @@ def build_parser() -> argparse.ArgumentParser:
         help="Border color as #RRGGBB or R,G,B.",
     )
     parser.add_argument(
+        "--border-opacity",
+        type=float,
+        default=1.0,
+        help="Border blend strength from 0.0 to 1.0.",
+    )
+    parser.add_argument(
+        "--border-color-mode",
+        choices=["solid", "auto", "gradient"],
+        default="solid",
+        help=(
+            "How divider colors are resolved: fixed color, auto-sampled, "
+            "or sampled gradient."
+        ),
+    )
+    parser.add_argument(
         "--shadow",
         type=int,
         default=0,
@@ -102,10 +128,38 @@ def build_parser() -> argparse.ArgumentParser:
         help="Shadow strength from 0.0 to 1.0.",
     )
     parser.add_argument(
+        "--highlight",
+        type=int,
+        default=0,
+        help="Inner highlight width in pixels on each side of a slice boundary.",
+    )
+    parser.add_argument(
+        "--highlight-opacity",
+        type=float,
+        default=0.35,
+        help="Highlight strength from 0.0 to 1.0.",
+    )
+    parser.add_argument(
+        "--highlight-color",
+        type=_parse_color,
+        default=(255, 255, 255),
+        metavar="COLOR",
+        help="Highlight color as #RRGGBB or R,G,B.",
+    )
+    parser.add_argument(
         "--feather",
         type=int,
         default=0,
         help="Blend width in pixels applied inside each neighboring slice.",
+    )
+    parser.add_argument(
+        "--curve",
+        choices=["linear", "smoothstep", "cosine", "hard"],
+        default="linear",
+        help=(
+            "Boundary ramp curve used by feather, shadow, highlight, "
+            "and gradient borders."
+        ),
     )
     return parser
 

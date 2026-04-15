@@ -25,7 +25,8 @@ Current focus includes:
 - vertical or horizontal time-slice rendering
 - configurable slice count
 - optional reverse-time rendering
-- optional slice boundary effects such as borders, shadows, and feathering
+- optional slice boundary effects such as borders, auto or gradient dividers,
+  shadows, highlights, feathering, and curve shaping
 - application-layer render workflows
 - infrastructure adapters for PIL-based loading and saving
 
@@ -97,9 +98,14 @@ spec = TimesliceSpec(
     effects=SliceEffects(
         border_width=2,
         border_color=(255, 255, 255),
+        border_opacity=0.8,
+        border_color_mode="gradient",
         shadow_width=8,
         shadow_opacity=0.35,
+        highlight_width=4,
+        highlight_opacity=0.2,
         feather_width=6,
+        curve="smoothstep",
     ),
 )
 
@@ -128,11 +134,18 @@ fragmento ./frames ./out.jpg \
   --orientation vertical \
   --slices 20 \
   --border 2 \
-  --border-color '#ffffff' \
+  --border-opacity 0.8 \
+  --border-color-mode gradient \
   --shadow 8 \
   --shadow-opacity 0.35 \
-  --feather 6
+  --highlight 4 \
+  --highlight-opacity 0.2 \
+  --feather 6 \
+  --curve smoothstep
 ```
+
+More CLI recipes, including overlay practice commands, live in
+[docs/USAGE_EXAMPLES.md](docs/USAGE_EXAMPLES.md).
 
 ## Roadmap
 

@@ -6,6 +6,8 @@ import numpy as np
 import numpy.typing as npt
 
 Orientation = Literal["vertical", "horizontal"]
+BoundaryCurve = Literal["linear", "smoothstep", "cosine", "hard"]
+BorderColorMode = Literal["solid", "auto", "gradient"]
 RGBColor = tuple[int, int, int]
 RGBImage = npt.NDArray[np.uint8]
 
@@ -34,9 +36,15 @@ class SliceEffects:
 
     border_width: int = 0
     border_color: RGBColor = (255, 255, 255)
+    border_opacity: float = 1.0
+    border_color_mode: BorderColorMode = "solid"
     shadow_width: int = 0
     shadow_opacity: float = 0.35
+    highlight_width: int = 0
+    highlight_opacity: float = 0.35
+    highlight_color: RGBColor = (255, 255, 255)
     feather_width: int = 0
+    curve: BoundaryCurve = "linear"
 
 
 @dataclass(frozen=True)
